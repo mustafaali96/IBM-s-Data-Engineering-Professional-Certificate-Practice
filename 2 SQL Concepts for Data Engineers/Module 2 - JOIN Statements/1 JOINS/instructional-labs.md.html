@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!-- saved from url=(0185)https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Joins/instructional-labs.md.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./instructional-labs.md_files/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./instructional-labs.md_files/default.min.css">
+  <style type="text/css">/* this file is used for labs on cognitiveclass.ai that were written in markdown */
+
+/* applies to images, i.e. "![]()" in markdown */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* add padding and margins */
+body {
+  padding: 10px;
+  margin: 10px;
+}
+
+/* applies to tables, i.e. "|--|--|" in markdown */
+table td,
+table th {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+/* applies to using quotes, i.e. ">" in markdown */
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 1em 10px 0.1em 10px;
+  quotes: '\201C''\201D''\2018''\2019';
+}
+
+/* the headers need some spacing */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  padding-top: 20px;
+}
+
+/* Add padding between nested list item */
+ul > li > ul {
+  padding-bottom: 1rem;
+}
+
+.code-badge-language {
+  display: none;
+}
+.code-badge-copy-icon {
+  background: url('data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhciIgZGF0YS1pY29uPSJjb3B5IiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY29weSBmYS13LTE0IiByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0OCA1MTIiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTQzMy45NDEgNjUuOTQxbC01MS44ODItNTEuODgyQTQ4IDQ4IDAgMCAwIDM0OC4xMTggMEgxNzZjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2NDhINDhjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2MzIwYzAgMjYuNTEgMjEuNDkgNDggNDggNDhoMjI0YzI2LjUxIDAgNDgtMjEuNDkgNDgtNDh2LTQ4aDgwYzI2LjUxIDAgNDgtMjEuNDkgNDgtNDhWOTkuODgyYTQ4IDQ4IDAgMCAwLTE0LjA1OS0zMy45NDF6TTI2NiA0NjRINTRhNiA2IDAgMCAxLTYtNlYxNTBhNiA2IDAgMCAxIDYtNmg3NHYyMjRjMCAyNi41MSAyMS40OSA0OCA0OCA0OGg5NnY0MmE2IDYgMCAwIDEtNiA2em0xMjgtOTZIMTgyYTYgNiAwIDAgMS02LTZWNTRhNiA2IDAgMCAxIDYtNmgxMDZ2ODhjMCAxMy4yNTUgMTAuNzQ1IDI0IDI0IDI0aDg4djIwMmE2IDYgMCAwIDEtNiA2em02LTI1NmgtNjRWNDhoOS42MzJjMS41OTEgMCAzLjExNy42MzIgNC4yNDMgMS43NTdsNDguMzY4IDQ4LjM2OGE2IDYgMCAwIDEgMS43NTcgNC4yNDNWMTEyeiI+PC9wYXRoPjwvc3ZnPg==');
+  background-size: 100% 100%;
+}
+
+.code-badge {
+  bottom: 0 !important;
+  top: unset !important;
+  background: unset !important;
+}
+
+.code-badge > .code-badge-check-icon {
+  background: green;
+}
+.code-badge-check-icon {
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0 7px;
+  background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGFyaWEtaGlkZGVuPSJ0cnVlIiBmb2N1c2FibGU9ImZhbHNlIiBkYXRhLXByZWZpeD0iZmFzIiBkYXRhLWljb249ImNoZWNrIiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY2hlY2sgZmEtdy0xNiIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9IiYjMTA7ICAgIGNvbG9yOiAjMmFmZjMyOyYjMTA7Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNzMuODk4IDQzOS40MDRsLTE2Ni40LTE2Ni40Yy05Ljk5Ny05Ljk5Ny05Ljk5Ny0yNi4yMDYgMC0zNi4yMDRsMzYuMjAzLTM2LjIwNGM5Ljk5Ny05Ljk5OCAyNi4yMDctOS45OTggMzYuMjA0IDBMMTkyIDMxMi42OSA0MzIuMDk1IDcyLjU5NmM5Ljk5Ny05Ljk5NyAyNi4yMDctOS45OTcgMzYuMjA0IDBsMzYuMjAzIDM2LjIwNGM5Ljk5NyA5Ljk5NyA5Ljk5NyAyNi4yMDYgMCAzNi4yMDRsLTI5NC40IDI5NC40MDFjLTkuOTk4IDkuOTk3LTI2LjIwNyA5Ljk5Ny0zNi4yMDQtLjAwMXoiLz48L3N2Zz4=');
+  background-size: 100% 100%;
+}
+</style></head>
+  <body>
+    <img src="./instructional-labs.md_files/IDSNlogo.png" width="200" height="200">
+    <h1>Hands-on Lab: Joins</h1>
+    <p><strong>Estimated time needed:</strong> 25 minutes</p>
+    <p>In this lab, you will run through some SQL practice problems that will provide hands-on experience with the different kinds of join operations.</p><br>
+    <p><strong>How does a CROSS JOIN (also known as Cartesian Join) statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">pgsql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-pgsql"><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">column_name</span>(s)
+<span class="hljs-keyword">FROM</span> table1
+<span class="hljs-keyword">CROSS</span> <span class="hljs-keyword">JOIN</span> table2;
+</code></pre><br>
+    <p><strong>How does an INNER JOIN statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">pgsql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-pgsql"><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">column_name</span>(s)
+<span class="hljs-keyword">FROM</span> table1
+<span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> table2
+<span class="hljs-keyword">ON</span> table1.<span class="hljs-built_in">column_name</span> = table2.<span class="hljs-built_in">column_name</span>;
+<span class="hljs-keyword">WHERE</span> condition;
+</code></pre><br>
+    <p><strong>How does a LEFT OUTER JOIN statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">pgsql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-pgsql"><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">column_name</span>(s)
+<span class="hljs-keyword">FROM</span> table1
+<span class="hljs-keyword">LEFT OUTER JOIN</span> table2
+<span class="hljs-keyword">ON</span> table1.<span class="hljs-built_in">column_name</span> = table2.<span class="hljs-built_in">column_name</span>
+<span class="hljs-keyword">WHERE</span> condition;
+</code></pre><br>
+    <p><strong>How does a RIGHT OUTER JOIN statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">pgsql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-pgsql"><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">column_name</span>(s)
+<span class="hljs-keyword">FROM</span> table1
+<span class="hljs-keyword">RIGHT OUTER JOIN</span> table2
+<span class="hljs-keyword">ON</span> table1.<span class="hljs-built_in">column_name</span> = table2.<span class="hljs-built_in">column_name</span>
+<span class="hljs-keyword">WHERE</span> condition;
+</code></pre><br>
+    <p><strong>How does a FULL OUTER JOIN statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">pgsql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-pgsql"><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">column_name</span>(s)
+<span class="hljs-keyword">FROM</span> table1
+<span class="hljs-keyword">FULL</span> <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> table2
+<span class="hljs-keyword">ON</span> table1.<span class="hljs-built_in">column_name</span> = table2.<span class="hljs-built_in">column_name</span>
+<span class="hljs-keyword">WHERE</span> condition;
+</code></pre><br>
+    <p><strong>How does a SELF JOIN statement syntax look?</strong></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">apache</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-apache"><span class="hljs-attribute"><span class="hljs-attribute">SELECT</span></span> column_name(s)
+<span class="hljs-attribute"><span class="hljs-attribute">FROM</span></span> table<span class="hljs-number"><span class="hljs-number">1</span></span> T<span class="hljs-number"><span class="hljs-number">1</span></span>, table<span class="hljs-number"><span class="hljs-number">1</span></span> T<span class="hljs-number"><span class="hljs-number">2</span></span>
+<span class="hljs-attribute"><span class="hljs-attribute">WHERE</span></span> condition;
+</code></pre><br>
+    <h2>Software Used in this Lab</h2>
+    <p>In this lab, you will use an <a href="https://www.ibm.com/products/db2-database?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDeveloperSkillsNetworkDB0201ENSkillsNetwork20127838-2021-01-01" target="_blank">IBM Db2 Database</a>. Db2 is a Relational Database Management System (RDBMS) from IBM, designed to store, analyze and retrieve data efficiently.</p>
+    <p>To complete this lab you will utilize a Db2 database service on IBM Cloud. If you did not already complete this lab task earlier in this module, you will not yet have access to Db2 on IBM Cloud, and you will need to follow the lab below first:</p>
+    <ul>
+      <li><a href="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Sign%20up%20for%20IBM%20Cloud%20-%20Create%20Db2%20service%20instance%20-%20Get%20started%20with%20the%20Db2%20console/instructional-labs.md.html" target="_blank" rel="external">Hands-on Lab : Sign up for IBM Cloud, Create Db2 service instance and Get started with the Db2 console</a></li>
+    </ul>
+    <h2>Database Used in this Lab</h2>
+    <p>The database used in this lab is an internal database. You will be working on a sample HR database. This HR database schema consists of 5 tables called <strong>EMPLOYEES</strong>, <strong>JOB_HISTORY</strong>, <strong>JOBS</strong>, <strong>DEPARTMENTS</strong> and <strong>LOCATIONS</strong>. Each table has a few rows of sample data. The following diagram shows the tables for the HR database:</p>
+    <img src="./instructional-labs.md_files/HR_Database.PNG" width="670" height="400">
+    <p><strong>NOTE:</strong> This lab requires you to have all 5 of these tables of the HR database populated with sample data on Db2. If you didn't complete the earlier lab in this module, you won't have the tables above populated with sample data on Db2, so you will need to go through the lab below first:</p>
+    <ul>
+      <li><a href="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Create%20tables%20using%20SQL%20scripts%20and%20Load%20data%20into%20tables/instructional-labs.md.html" target="_blank" rel="external">Hands-on Lab : Create tables using SQL scripts and Load data into tables</a></li>
+    </ul>
+    <h2>Objectives</h2>
+    <p>After completing this lab you will be able to:</p>
+    <ul>
+      <li>Perform different kinds of join operations</li>
+    </ul>
+    <h2>Instructions</h2>
+    <p>When you approach the exercises in this lab, follow the instructions to run the queries on Db2:</p>
+    <ul>
+      <li>
+        <p>Go to the <a href="https://cloud.ibm.com/resources?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDeveloperSkillsNetworkDB0201ENSkillsNetwork20127838-2021-01-01" target="_blank" rel="external">Resource List</a> of IBM Cloud by logging in where you can find the Db2 service instance that you created in a previous lab under <strong>Services</strong> section. Click on the <strong>Db2-xx service</strong>. Next, open the Db2 Console by clicking on <strong>Open Console</strong> button. Click on the 3-bar menu icon in the top left corner and go to the <strong>Run SQL</strong> page. The Run SQL tool enables you to run SQL statements.</p>
+        <ul>
+          <li>If needed, follow <a href="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Sign%20up%20for%20IBM%20Cloud%20-%20Create%20Db2%20service%20instance%20-%20Get%20started%20with%20the%20Db2%20console/instructional-labs.md.html" target="_blank" rel="external">Hands-on Lab : Sign up for IBM Cloud, Create Db2 service instance and Get started with the Db2 console</a></li>
+        </ul>
+      </li>
+    </ul>
+    <h1>Exercise</h1>
+    <ol>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Select the names and job start dates of all employees who work for the department number 5.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Use the Inner join operation with the EMPLOYEES table as the left table and the JOB_HISTORY table as the right table.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.F_NAME,<span class="hljs-built_in">E</span>.L_NAME, JH.START_DATE 
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">as</span> <span class="hljs-built_in">E</span> 
+<span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> JOB_HISTORY <span class="hljs-keyword">as</span> JH <span class="hljs-keyword">on</span> <span class="hljs-built_in">E</span>.EMP_ID=JH.EMPL_ID 
+<span class="hljs-keyword">where</span> <span class="hljs-built_in">E</span>.DEP_ID =<span class="hljs-string">'5'</span>;	
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/1.A.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Select the names, job start dates, and job titles of all employees who work for the department number 5.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Perform an INNER JOIN with 3 tables – EMPLOYEES, JOB_HISTORY, JOBS.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.F_NAME,<span class="hljs-built_in">E</span>.L_NAME, JH.START_DATE, J.JOB_TITLE 
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">as</span> <span class="hljs-built_in">E</span> 
+<span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> JOB_HISTORY <span class="hljs-keyword">as</span> JH <span class="hljs-keyword">on</span> <span class="hljs-built_in">E</span>.EMP_ID=JH.EMPL_ID 
+<span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> JOBS <span class="hljs-keyword">as</span> J <span class="hljs-keyword">on</span> <span class="hljs-built_in">E</span>.JOB_ID=J.JOB_IDENT
+<span class="hljs-keyword">where</span> <span class="hljs-built_in">E</span>.DEP_ID =<span class="hljs-string">'5'</span>;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/1.B.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Perform a Left Outer Join on the EMPLOYEES and DEPARTMENT tables and select employee id, last name, department id and department name for all employees.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Use the Left Outer Join operation with the EMPLOYEES table as the left table and the DEPARTMENTS table as the right table.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.EMP_ID,<span class="hljs-built_in">E</span>.L_NAME,<span class="hljs-built_in">E</span>.DEP_ID,D.DEP_NAME
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">AS</span> <span class="hljs-built_in">E</span> 
+<span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> DEPARTMENTS <span class="hljs-keyword">AS</span> D <span class="hljs-keyword">ON</span> <span class="hljs-built_in">E</span>.DEP_ID=D.DEPT_ID_DEP;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/2.A.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Re-write the previous query but limit the result set to include only the rows for employees born before 1980.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Use a WHERE clause and Left Outer Join operation. Alternatively, you could also use an INNER JOIN.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.EMP_ID,<span class="hljs-built_in">E</span>.L_NAME,<span class="hljs-built_in">E</span>.DEP_ID,D.DEP_NAME
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">AS</span> <span class="hljs-built_in">E</span> 
+<span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> DEPARTMENTS <span class="hljs-keyword">AS</span> D <span class="hljs-keyword">ON</span> <span class="hljs-built_in">E</span>.DEP_ID=D.DEPT_ID_DEP 
+<span class="hljs-keyword">where</span> YEAR(<span class="hljs-built_in">E</span>.B_DATE) &lt; <span class="hljs-number">1980</span>;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/2.B.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Re-write the previous query but have the result set include all the employees but department names for only the employees who were born before 1980.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Use an AND in the LEFT OUTER JOIN clause.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.EMP_ID,<span class="hljs-built_in">E</span>.L_NAME,<span class="hljs-built_in">E</span>.DEP_ID,D.DEP_NAME
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">AS</span> <span class="hljs-built_in">E</span> 
+<span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> DEPARTMENTS <span class="hljs-keyword">AS</span> D <span class="hljs-keyword">ON</span> <span class="hljs-built_in">E</span>.DEP_ID=D.DEPT_ID_DEP 
+<span class="hljs-keyword">AND</span> YEAR(<span class="hljs-built_in">E</span>.B_DATE) &lt; <span class="hljs-number">1980</span>;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/2.C.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Perform a Full Join on the EMPLOYEES and DEPARTMENT tables and select the First name, Last name and Department name of all employees.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Use the Full Outer Join operation with the EMPLOYEES table as the left table and the DEPARTMENTS table as the right table.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.F_NAME,<span class="hljs-built_in">E</span>.L_NAME,D.DEP_NAME
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">AS</span> <span class="hljs-built_in">E</span> 
+FULL <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> DEPARTMENTS <span class="hljs-keyword">AS</span> D <span class="hljs-keyword">ON</span> <span class="hljs-built_in">E</span>.DEP_ID=D.DEPT_ID_DEP;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/3.A.png" alt="image">
+          </p>
+        </details>
+      </li>
+      <li>
+        <p>Problem:</p>
+        <blockquote>
+          <p><em>Re-write the previous query but have the result set include all employee names but department id and department names only for male employees.</em></p>
+        </blockquote>
+        <details>
+          <summary>Hint</summary>
+          <blockquote>
+            <p>Add an AND in Query 3A to filter on male employees in the ON clause. Alternatively, you can also use Left Outer Join.</p>
+          </blockquote>
+        </details>
+        <details>
+          <summary>Solution</summary>
+          <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">n1ql</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-n1ql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">E</span>.F_NAME,<span class="hljs-built_in">E</span>.L_NAME,D.DEPT_ID_DEP, D.DEP_NAME
+<span class="hljs-keyword">from</span> EMPLOYEES <span class="hljs-keyword">AS</span> <span class="hljs-built_in">E</span> 
+FULL <span class="hljs-keyword">OUTER</span> <span class="hljs-keyword">JOIN</span> DEPARTMENTS <span class="hljs-keyword">AS</span> D <span class="hljs-keyword">ON</span> <span class="hljs-built_in">E</span>.DEP_ID=D.DEPT_ID_DEP <span class="hljs-keyword">AND</span> <span class="hljs-built_in">E</span>.SEX = <span class="hljs-string">'M'</span>;
+</code></pre>
+        </details>
+        <details>
+          <summary>Output</summary>
+          <p>
+            <img src="./instructional-labs.md_files/3.B.png" alt="image">
+          </p>
+        </details>
+      </li>
+    </ol><br>
+    <h1>Solution Script</h1>
+    <p>If you would like to run all the solution queries of the SQL problems of this lab with a script, download the script below. Upload the script to the Db2 console and run. Follow <a href="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Create%20tables%20using%20SQL%20scripts%20and%20Load%20data%20into%20tables/instructional-labs.md.html" target="_blank" rel="external">Hands-on Lab : Create tables using SQL scripts and Load data into tables</a> on how to upload a script to Db2 console and run it.</p>
+    <ul>
+      <li><a href="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DB0201EN-SkillsNetwork/labs/Labs_Coursera_V5/labs/Lab%20-%20Joins/JOIN_Solution_Script.sql" target="_blank" rel="external">JOIN_Solution_Script.sql</a></li>
+    </ul><br>
+    <h3>Congratulations! You have completed this lab, and you are ready for the next topic.</h3>
+    <h3><br></h3>
+    <h1>Author(s)</h1>
+    <ul>
+      <li><a href="https://www.linkedin.com/in/ravahuja/?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDeveloperSkillsNetworkDB0201ENSkillsNetwork20127838-2021-01-01" target="_blank" rel="external">Rav Ahuja</a></li>
+      <li><a href="https://www.linkedin.com/in/sandipsahajoy/?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDeveloperSkillsNetworkDB0201ENSkillsNetwork20127838-2021-01-01" target="_blank" rel="external">Sandip Saha Joy</a></li>
+    </ul>
+    <h1>Other Contributor(s)</h1>
+    <ul>
+      <li></li>
+    </ul>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2020-12-25</td>
+          <td>2.1</td>
+          <td>Steve Ryan</td>
+          <td>ID Reviewed</td>
+        </tr>
+        <tr>
+          <td>2020-12-10</td>
+          <td>2.0</td>
+          <td>Sandip Saha Joy</td>
+          <td>Created revised version from DB0201EN</td>
+        </tr>
+        <tr>
+          <td>2020</td>
+          <td>1.0</td>
+          <td>Rav Ahuja</td>
+          <td>Created initial version</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2020. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="./instructional-labs.md_files/inject.43989f87.js.download"></script>
+    <script src="./instructional-labs.md_files/highlight.min.js.download"></script>
+    <script src="./instructional-labs.md_files/highlightjs-badge.min.js.download"></script>
+  
+
+<style>
+@media print {
+   .code-badge { display: none; }
+}
+    .code-badge-pre {
+        position: relative;
+    }
+    .code-badge {
+        display: flex;
+        flex-direction: row;
+        white-space: normal;
+        background: transparent;
+        background: #333;
+        color: white;
+        font-size: 0.875em;
+        opacity: 0.5;
+        transition: opacity linear 0.5s;
+        border-radius: 0 0 0 7px;
+        padding: 5px 8px 5px 8px;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .code-badge.active {
+        opacity: 0.8;
+    }
+
+    .code-badge:hover {
+        opacity: .95;
+    }
+
+    .code-badge a,
+    .code-badge a:hover {
+        text-decoration: none;
+    }
+
+    .code-badge-language {
+        margin-right: 10px;
+        font-weight: 600;
+        color: goldenrod;
+    }
+    .code-badge-copy-icon {
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 0 7px;
+        margin-top:2;
+    }
+    .fa.text-success:{ color: limegreen !important }
+</style><div id="CodeBadgeTemplate" style="display:none">
+    <div class="code-badge">
+        <div class="code-badge-language">{{language}}</div>
+        <div title="Copy to clipboard">
+            <i class="{{copyIconClass}} code-badge-copy-icon"></i>
+        </div>
+     </div>
+</div></body></html>
