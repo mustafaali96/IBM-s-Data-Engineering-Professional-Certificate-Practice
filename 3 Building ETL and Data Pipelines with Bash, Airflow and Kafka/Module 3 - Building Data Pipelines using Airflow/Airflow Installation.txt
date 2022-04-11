@@ -1,0 +1,65 @@
+Step 1: Installing Linux Subsystem (Ubuntu)
+
+a. Enable Developer Mode
+b. Enable Linux Subsystem
+	In the Windows search bar type “Windows Feature” and select the option that says “Turn a Windows Feature on or off.”
+	Check the box next to Windows Subsystem for Linux and click OK.
+
+c. Download C++ Build Tools (14.0)
+
+
+
+Step 2: Installing PIP (ubuntu windows bash)
+
+sudo apt-get install software-properties-common 
+sudo apt-add-repository universe
+sudo apt-get update
+sudo apt-get install python-setuptools
+sudo apt install python-pip
+sudo -H pip install --upgrade pip
+pip -V
+
+
+Step 3: Installing Dependencies
+
+sudo apt-get install libmysqlclient-dev 
+sudo apt-get install libssl-dev 
+sudo apt-get install libkrb5-dev 
+sudo apt-get install libsasl2-dev 
+
+
+Step 4: Installing Apache Airflow
+
+sudo SLUGIFY_USES_TEXT_UNIDECODE=yes pip install apache-airflow
+export PATH=$PATH:/home/<username>/.local/bin
+sudo pip uninstall marshmallow
+sudo pip install marshmallow==2.19.5
+sudo pip uninstall WTForms
+sudo pip install WTForms==2.2.1
+
+
+Step 5: Apache Airflow Setup
+
+airflow db init
+
+cd airflow
+ls
+sudo nano airflow.cfg
+
+dags_folder = /mnt/c/dags
+base_log_folder = /mnt/c/dags/logs
+
+*** Ctrl + o ***** save file
+*** Ctrl + x ***** exit
+*** Ctrl + w ***** search in file
+
+airflow db init
+
+airflow users create \
+    --username <user name> \
+    --firstname <first name> \
+    --lastname <last name> \
+    --role Admin \
+    --email <email>
+
+airflow webserver -p 8080
