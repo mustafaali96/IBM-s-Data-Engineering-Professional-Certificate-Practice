@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<!-- saved from url=(0153)https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Streaming/reading-optional-kafka-msgkey_offset.md.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./reading-optional-kafka-msgkey_offset.md_files/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./reading-optional-kafka-msgkey_offset.md_files/default.min.css">
+  <style type="text/css">/* this file is used for labs on cognitiveclass.ai that were written in markdown */
+
+/* applies to images, i.e. "![]()" in markdown */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* add padding and margins */
+body {
+  padding: 10px;
+  margin: 10px;
+}
+
+/* applies to tables, i.e. "|--|--|" in markdown */
+table td,
+table th {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+/* applies to using quotes, i.e. ">" in markdown */
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 1em 10px 0.1em 10px;
+  quotes: '\201C''\201D''\2018''\2019';
+}
+
+/* the headers need some spacing */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  padding-top: 20px;
+}
+
+/* Add padding between nested list item */
+ul > li > ul {
+  padding-bottom: 1rem;
+}
+
+.code-badge-language {
+  display: none;
+}
+.code-badge-copy-icon {
+  background: url('data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhciIgZGF0YS1pY29uPSJjb3B5IiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY29weSBmYS13LTE0IiByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0OCA1MTIiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTQzMy45NDEgNjUuOTQxbC01MS44ODItNTEuODgyQTQ4IDQ4IDAgMCAwIDM0OC4xMTggMEgxNzZjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2NDhINDhjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2MzIwYzAgMjYuNTEgMjEuNDkgNDggNDggNDhoMjI0YzI2LjUxIDAgNDgtMjEuNDkgNDgtNDh2LTQ4aDgwYzI2LjUxIDAgNDgtMjEuNDkgNDgtNDhWOTkuODgyYTQ4IDQ4IDAgMCAwLTE0LjA1OS0zMy45NDF6TTI2NiA0NjRINTRhNiA2IDAgMCAxLTYtNlYxNTBhNiA2IDAgMCAxIDYtNmg3NHYyMjRjMCAyNi41MSAyMS40OSA0OCA0OCA0OGg5NnY0MmE2IDYgMCAwIDEtNiA2em0xMjgtOTZIMTgyYTYgNiAwIDAgMS02LTZWNTRhNiA2IDAgMCAxIDYtNmgxMDZ2ODhjMCAxMy4yNTUgMTAuNzQ1IDI0IDI0IDI0aDg4djIwMmE2IDYgMCAwIDEtNiA2em02LTI1NmgtNjRWNDhoOS42MzJjMS41OTEgMCAzLjExNy42MzIgNC4yNDMgMS43NTdsNDguMzY4IDQ4LjM2OGE2IDYgMCAwIDEgMS43NTcgNC4yNDNWMTEyeiI+PC9wYXRoPjwvc3ZnPg==');
+  background-size: 100% 100%;
+}
+
+.code-badge {
+  bottom: 0 !important;
+  top: unset !important;
+  background: unset !important;
+}
+
+.code-badge > .code-badge-check-icon {
+  background: green;
+}
+.code-badge-check-icon {
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0 7px;
+  background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGFyaWEtaGlkZGVuPSJ0cnVlIiBmb2N1c2FibGU9ImZhbHNlIiBkYXRhLXByZWZpeD0iZmFzIiBkYXRhLWljb249ImNoZWNrIiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY2hlY2sgZmEtdy0xNiIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9IiYjMTA7ICAgIGNvbG9yOiAjMmFmZjMyOyYjMTA7Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNzMuODk4IDQzOS40MDRsLTE2Ni40LTE2Ni40Yy05Ljk5Ny05Ljk5Ny05Ljk5Ny0yNi4yMDYgMC0zNi4yMDRsMzYuMjAzLTM2LjIwNGM5Ljk5Ny05Ljk5OCAyNi4yMDctOS45OTggMzYuMjA0IDBMMTkyIDMxMi42OSA0MzIuMDk1IDcyLjU5NmM5Ljk5Ny05Ljk5NyAyNi4yMDctOS45OTcgMzYuMjA0IDBsMzYuMjAzIDM2LjIwNGM5Ljk5NyA5Ljk5NyA5Ljk5NyAyNi4yMDYgMCAzNi4yMDRsLTI5NC40IDI5NC40MDFjLTkuOTk4IDkuOTk3LTI2LjIwNyA5Ljk5Ny0zNi4yMDQtLjAwMXoiLz48L3N2Zz4=');
+  background-size: 100% 100%;
+}
+</style></head>
+  <body>
+    <center>
+      <img src="./reading-optional-kafka-msgkey_offset.md_files/IDSNlogo.png" width="300" alt="cognitiveclass.ai logo">
+    </center>
+    <h1>Kafka Message key and offset</h1>
+    <p>Estimated time needed: <strong>20</strong> minutes</p>
+    <h2>Objectives</h2>
+    <p>After reading this article, you will be able to learn:</p>
+    <ul>
+      <li>
+        <p>Use message keys to keep messages' original publication state/order</p>
+      </li>
+      <li>
+        <p>Use consumer offset to control and track message sequential positions in topic partitions</p>
+      </li>
+    </ul>
+    <h1>Create topic and producer for processing bank ATM transactions</h1>
+    <p>
+      Suppose we want to process transaction messages come from ATM of a bank using Kafka.
+      The message comes from the ATM are in the form of a simple JSON object, including an ATM id and a transaction id like the following example:
+    </p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">100</span></span>}
+</code></pre>
+    <p>To process the ATM messages, let's first create a new topic called <code>bankbranch</code>.</p>
+    <ul>
+      <li>
+        Create a new topic using <code>--topic</code> argument with the name <code>bankbranch</code>. In order to simplify the topic configuration and better
+        explain how message key and consumer offset work, here we specify <code>--partitions 2</code> argument to create two partitions for this topic.
+        You may try other <code>partitions</code> settings for this topic if you are interested to compare the difference.
+      </li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">topics</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">create</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span>  --<span class="hljs-comment">partitions</span> <span class="hljs-comment">2</span>
+</code></pre>
+    <p></p>
+    <p>Now let's list all the topics to see if the <code>bankbranch</code> has been created successfully.</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">topics</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">list</span>
+</code></pre>
+    <p></p>
+    <p>We can also use the <code>--describe</code> command to check the details of the topic <code>bankbranch</code></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">topics</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">describe</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span>
+</code></pre>
+    <p></p>
+    <p>
+      and you can see <code>bankbranch</code> has two partitions <code>Partition 0</code> and <code>Partition 1</code>, and messages
+      will be published to these two partitions in rotation if no message keys are specified.
+    </p>
+    <p>
+      For example, messages will be published as the following rotation:
+      <code>Partition 0</code> -&gt; <code>Partition 1</code> -&gt; <code>Partition 0</code> -&gt; <code>Partition 1</code> ...
+      Next, we can create a producer to publish some ATM transaction messages.
+    </p>
+    <ul>
+      <li>Create a producer for topic <code>bankbranch</code></li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">mipsasm</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-mipsasm"><span class="hljs-keyword">bin/kafka-console-producer.sh </span>--<span class="hljs-keyword">bootstrap-server </span>localhost:<span class="hljs-number">9092</span> --topic <span class="hljs-keyword">bankbranch </span>
+
+</code></pre>
+    <p></p>
+    <p>You can try to publish the following ATM messages after it to produce the messages:</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">100</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">101</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">200</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">102</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">201</span></span>}
+</code></pre>
+    <p>Then, let's create a consumer in a new terminal window to consume these 5 new messages.</p>
+    <ul>
+      <li>Start a new consumer to subscribe topic <code>bankbranch</code></li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">mipsasm</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-mipsasm"><span class="hljs-keyword">bin/kafka-console-consumer.sh </span>--<span class="hljs-keyword">bootstrap-server </span>localhost:<span class="hljs-number">9092</span> --topic <span class="hljs-keyword">bankbranch </span>--from-<span class="hljs-keyword">beginning
+</span></code></pre>
+    <p></p>
+    <p>Then, you should see the new 5 messages we just published,</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">100</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">200</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">201</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">101</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">102</span></span>}
+Processed a total of <span class="hljs-number"><span class="hljs-number">5</span></span> messages
+</code></pre>
+    <p>
+      They are not consumed in the same order as they published.
+      This can be an issue if you want to keep the messages consumed in order, especially for areas like financial transactions.
+    </p>
+    <h1>Produce and consume with message keys</h1>
+    <p>
+      In this step, you will be using message keys to ensure messages with the same key will be consumed with
+      the same order as they published. In the backend, messages with the same key will be published into the same partition and
+      will always be consumed by the same consumer. As such, the original publication order is kept in the consumer side.
+    </p>
+    <p>Ok, we can now start new producer and consumer with message keys. We will start a new producer with the following message key commands:</p>
+    <ul>
+      <li><code>--property parse.key=true</code> to let producer now parse message keys</li>
+      <li><code>--property key.separator=:</code> define the key separator to be the <code>:</code> character, so our message with key now</li>
+    </ul>
+    <p>
+      looks like the following example:
+      - <code>1:{"atmid": 1, "transid": 102}</code>. Message key is <code>1</code> which is the ATM id, and value is the transaction JSON object.
+    </p>
+    <ul>
+      <li>Start a new producer with message key enabled:</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">qml</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-qml">bin/kafka-<span class="hljs-built_in">console</span>-producer.sh --bootstrap-server <span class="hljs-attribute">localhost</span>:<span class="hljs-number">9092</span> --topic bankbranch --<span class="hljs-keyword">property</span><span class="hljs-string"> parse.key</span>=<span class="hljs-literal">true</span> --<span class="hljs-keyword">property</span><span class="hljs-string"> key.separator</span>=:
+</code></pre>
+    <p></p>
+    <ul>
+      <li>Produce the following message with key to be ATM ids</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">102</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">103</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">2</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">202</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">2</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">203</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">104</span></span>}
+</code></pre>
+    <p></p>
+    <ul>
+      <li>Start a new consumer with</li>
+    </ul>
+    <p><code>--property print.key=true --property key.separator=:</code> arguments to print the keys</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">jboss-cli</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-jboss-cli">bin/kafka-console-consumer.sh <span class="hljs-params">--bootstrap-server</span> localhost<span class="hljs-function">:9092</span> <span class="hljs-params">--topic</span> bankbranch <span class="hljs-params">--from-beginning</span> <span class="hljs-params">--property</span> print.key=<span class="hljs-literal">true</span> <span class="hljs-params">--property</span> key.separator=:
+</code></pre>
+    <p></p>
+    <p>
+      Now, you should see the messages with the same key are being consumed
+      (e.g., <code>trans102 -&gt; trans103 -&gt; trans104</code>) in the same order as they are published.
+    </p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-literal"><span class="hljs-literal">null</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">100</span></span>}
+<span class="hljs-literal"><span class="hljs-literal">null</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">200</span></span>}
+<span class="hljs-literal"><span class="hljs-literal">null</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">201</span></span>}
+<span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">102</span></span>}
+<span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">103</span></span>}
+<span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">104</span></span>}
+<span class="hljs-literal"><span class="hljs-literal">null</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">101</span></span>}
+<span class="hljs-literal"><span class="hljs-literal">null</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">102</span></span>}
+<span class="hljs-number"><span class="hljs-number">2</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">202</span></span>}
+<span class="hljs-number"><span class="hljs-number">2</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">203</span></span>}
+Processed a total of <span class="hljs-number"><span class="hljs-number">10</span></span> messages
+</code></pre>
+    <p>
+      This is because each topic partition maintains its own message queue, and new messages are enqueued (appended to the end of the queue)
+      when published to the partition. When consumed, the earliest messages will be dequeued.
+    </p>
+    <p>
+      With two partitions and no message key specified, the previous transaction messages will be published to the two partitions
+      in rotation:
+    </p>
+    <ul>
+      <li>Partition 0: <code>[{"atmid": 1, "transid": 102}, {"atmid": 2, "transid": 202}, {"atmid": 1, "transid": 104}]</code></li>
+      <li>Partition 1: <code>[{"atmid": 1, "transid": 103}, {"atmid": 2, "transid": 203}]</code></li>
+    </ul>
+    <p>
+      As you can see the transaction messages from <code>atm1</code> and <code>atm2</code> are mixed in both partitions. So that it can be very hard
+      to consume messages from one ATM with the same order as they published.
+    </p>
+    <p>With message key (the <code>atmid</code> value) specified, the messages from the two ATMs will look like the following:</p>
+    <ul>
+      <li>Partition 0: <code>[{"atmid": 1, "transid": 102}, {"atmid": 1, "transid": 103}, {"atmid": 1, "transid": 104}]</code></li>
+      <li>Partition 1: <code>[{"atmid": 2, "transid": 202}, {"atmid": 2, "transid": 203}]</code></li>
+    </ul>
+    <p>
+      Messages with the same key will always be published to the same partition, so that their publish order will be kept in the message
+      queue of each partition.
+    </p>
+    <p>As such, we can keep the states or orders of the transactions for each ATM.</p>
+    <h1>Consumer Offset</h1>
+    <p>
+      Topic partition keeps published messages in a sequence, like a list.
+      Message offset indicates its position in the sequence. For example,
+      the offset of an empty Partition 0 <code>bankbranch</code> is <code>0</code>, and if you publish the first message
+      to the partition, its offset will become <code>1</code>.
+    </p>
+    <p>
+      By using offset in consumer, you can specify the message consumption starting
+      position such as from the beginning or only retrieve the latest messages.
+    </p>
+    <h2>Consumer Group</h2>
+    <p>
+      In addition, we normally group related consumers together as a consumer group.
+      For example, we may want to create a consumer for each ATM in the bank and manage all ATM related consumers
+      together in a group.
+    </p>
+    <p>So let's see how to create a consumer group, which is actually very easy with the <code>--group</code> argument.</p>
+    <ul>
+      <li>In the consumer terminal, stop the previous consumer if it is still running, and run the</li>
+    </ul>
+    <p>following command to create a new consumer within a consumer group called <code>atm-app</code>:</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">console</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span>
+</code></pre>
+    <p></p>
+    <p>
+      After the consumer within the <code>atm-app</code> consumer group is started, you should expect no messages consumed
+      because the offsets for both partitions have already reached to the end.
+    </p>
+    <p><code>Processed a total of 0 messages</code></p>
+    <p>In other words, all messages have been already consumed by previous consumers.</p>
+    <p>We can verify that by checking consumer group details.</p>
+    <ul>
+      <li>
+        <p>Stop the consumer</p>
+      </li>
+      <li>
+        <p>Show the details of the consumer group <code>atm-app</code>.</p>
+      </li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">stata</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-stata">bin/kafka-consumer-groups.<span class="hljs-keyword">sh</span> --<span class="hljs-keyword">bootstrap</span>-server localhost:9092 --<span class="hljs-keyword">describe</span> --group atm-<span class="hljs-keyword">app</span>
+</code></pre>
+    <p></p>
+    <p>
+      Now you should see the offset information for the topic <code>bankbranch</code>:
+      
+      <img src="./reading-optional-kafka-msgkey_offset.md_files/consumer_details_lag0.png" alt="">
+    </p>
+    <p>
+      Recall that we have published <code>10</code> messages in total, and we can see the <code>CURRENT-OFFSET</code> column of partition 1 is <code>6</code>
+      and <code>CURRENT-OFFSET</code> of partition 0 is <code>4</code>, and they add up to 10 messages.
+    </p>
+    <p>
+      The <code>LOG-END-OFFSET</code>column means the last offset or the end of the sequence, which is 6 for partition 1 and 4 for
+      partition 0 as well. It means both partitions reach to their end and no more messages for consumptions.
+    </p>
+    <p>
+      Meanwhile, you can check the <code>LAG</code> column which represents the count of unconsumed messages for each partition.
+      Current it is <code>0</code> for all partitions.
+    </p>
+    <p>Now, let's try to produce more messages and see the updates on the offsets.</p>
+    <ul>
+      <li>Switch to the previous producer terminal, and publish two more messages:</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">1</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">105</span></span>}
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json"><span class="hljs-number"><span class="hljs-number">2</span></span>:{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">204</span></span>}
+</code></pre>
+    <p></p>
+    <p>and let's switch back to the consumer terminal and check the consumer group details again:</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">stata</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-stata">bin/kafka-consumer-groups.<span class="hljs-keyword">sh</span> --<span class="hljs-keyword">bootstrap</span>-server localhost:9092 --<span class="hljs-keyword">describe</span> --group atm-<span class="hljs-keyword">app</span>
+</code></pre>
+    <p></p>
+    <p>
+      <img src="./reading-optional-kafka-msgkey_offset.md_files/consumer_details_lag1.png" alt="">
+    </p>
+    <p>
+      You should see the both offsets have been increased by 1, and the <code>LAG</code> columns for both partitions become
+      <code>1</code>. It means we have 1 new message for each partition to be consumed.
+    </p>
+    <ul>
+      <li>Let's start the consumer again and you can see the two new messages will be consumed.</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">console</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span>
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">105</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">204</span></span>}
+Processed a total of <span class="hljs-number"><span class="hljs-number">2</span></span> messages
+</code></pre>
+    <p>OK, now both partitions reach the end once again but what if I want to consume the messages again from the beginning.</p>
+    <p>We can do that via resetting offset in the next step.</p>
+    <h2>Reset offset</h2>
+    <p>We can reset index use the <code>--reset-offsets</code> argument</p>
+    <p>First let's try reset offset to the earliest (beginning) using <code>--reset-offsets --to-earliest</code>.</p>
+    <ul>
+      <li>Stop the previous consumer if it is still running, and run the following command to reset offset:</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-literal">-</span><span class="hljs-comment">groups</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span>  --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span> --<span class="hljs-comment">reset</span><span class="hljs-literal">-</span><span class="hljs-comment">offsets</span> --<span class="hljs-comment">to</span><span class="hljs-literal">-</span><span class="hljs-comment">earliest</span> --<span class="hljs-comment">execute</span>
+</code></pre>
+    <p></p>
+    <p>Now the offsets have been set to 0 (the beginning).</p>
+    <ul>
+      <li>Start the consumer again:</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">console</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span>
+</code></pre>
+    <p></p>
+    <p>and you should see all 12 messages are consumed and all offsets should reach to the partition ends again.</p>
+    <p>
+      In fact, you can reset the offset to any position. For example, let's reset the offset so that
+      we only consume the last two messages.
+    </p>
+    <ul>
+      <li>
+        <p>Stop the previous consumer</p>
+      </li>
+      <li>
+        <p>Shift the offset to left by 2 using <code>--reset-offsets --shift-by -2</code>:</p>
+      </li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-literal">-</span><span class="hljs-comment">groups</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span>  --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span> --<span class="hljs-comment">reset</span><span class="hljs-literal">-</span><span class="hljs-comment">offsets</span> --<span class="hljs-comment">shift</span><span class="hljs-literal">-</span><span class="hljs-comment">by</span> <span class="hljs-literal">-</span><span class="hljs-comment">2</span> --<span class="hljs-comment">execute</span>
+</code></pre>
+    <p></p>
+    <ul>
+      <li>If we run the consumer again, we can see we consumed 4 messages, 2 for each partition:</li>
+    </ul>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">brainfuck</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-brainfuck"><span class="hljs-comment">bin/kafka</span><span class="hljs-literal">-</span><span class="hljs-comment">console</span><span class="hljs-literal">-</span><span class="hljs-comment">consumer</span><span class="hljs-string">.</span><span class="hljs-comment">sh</span> --<span class="hljs-comment">bootstrap</span><span class="hljs-literal">-</span><span class="hljs-comment">server</span> <span class="hljs-comment">localhost:9092</span> --<span class="hljs-comment">topic</span> <span class="hljs-comment">bankbranch</span> --<span class="hljs-comment">group</span> <span class="hljs-comment">atm</span><span class="hljs-literal">-</span><span class="hljs-comment">app</span>
+</code></pre>
+    <p></p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">json</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-json">{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">104</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">1</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">105</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">203</span></span>}
+{<span class="hljs-attr"><span class="hljs-attr">"atmid"</span></span>: <span class="hljs-number"><span class="hljs-number">2</span></span>, <span class="hljs-attr"><span class="hljs-attr">"transid"</span></span>: <span class="hljs-number"><span class="hljs-number">204</span></span>}
+Processed a total of <span class="hljs-number"><span class="hljs-number">4</span></span> messages
+</code></pre>
+    <h1>Summary</h1>
+    <p>
+      In this reading, you have learned how to include message keys in publication to keep their message states/order.
+      You have also learned how to reset offset to control the message consumption starting point.
+    </p>
+    <h2>Authors</h2>
+    <p><a href="https://www.linkedin.com/in/yan-luo-96288783/?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDB0250ENSkillsNetwork26764073-2021-01-01" target="_blank" rel="external">Yan Luo</a></p>
+    <h3>Other Contributors</h3>
+    <h2>Change Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date (YYYY-MM-DD)</th>
+          <th>Version</th>
+          <th>Changed By</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2021-10-27</td>
+          <td>1.0</td>
+          <td>Yan Luo</td>
+          <td>Created initial version of the lab</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Copyright (c) 2021 IBM Corporation. All rights reserved.</p>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="./reading-optional-kafka-msgkey_offset.md_files/inject.43989f87..download"></script>
+    <script src="./reading-optional-kafka-msgkey_offset.md_files/highlight.min.js.download"></script>
+    <script src="./reading-optional-kafka-msgkey_offset.md_files/highlightjs-badg.download"></script>
+  
+
+<style>
+@media print {
+   .code-badge { display: none; }
+}
+    .code-badge-pre {
+        position: relative;
+    }
+    .code-badge {
+        display: flex;
+        flex-direction: row;
+        white-space: normal;
+        background: transparent;
+        background: #333;
+        color: white;
+        font-size: 0.875em;
+        opacity: 0.5;
+        transition: opacity linear 0.5s;
+        border-radius: 0 0 0 7px;
+        padding: 5px 8px 5px 8px;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .code-badge.active {
+        opacity: 0.8;
+    }
+
+    .code-badge:hover {
+        opacity: .95;
+    }
+
+    .code-badge a,
+    .code-badge a:hover {
+        text-decoration: none;
+    }
+
+    .code-badge-language {
+        margin-right: 10px;
+        font-weight: 600;
+        color: goldenrod;
+    }
+    .code-badge-copy-icon {
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 0 7px;
+        margin-top:2;
+    }
+    .fa.text-success:{ color: limegreen !important }
+</style><div id="CodeBadgeTemplate" style="display:none">
+    <div class="code-badge">
+        <div class="code-badge-language">{{language}}</div>
+        <div title="Copy to clipboard">
+            <i class="{{copyIconClass}} code-badge-copy-icon"></i>
+        </div>
+     </div>
+</div></body></html>

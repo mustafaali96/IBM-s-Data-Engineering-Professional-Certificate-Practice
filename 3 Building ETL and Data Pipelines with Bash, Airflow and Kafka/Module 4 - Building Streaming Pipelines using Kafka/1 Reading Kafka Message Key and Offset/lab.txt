@@ -1,0 +1,58 @@
+Starting Zookeeper and Kafka
+To start Zookeeper: open cmd
+> C:\kafka
+> .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+
+To start Kafka: open another cmd
+> C:\kafka
+> .\bin\windows\kafka-server-start.bat .\config\server.properties
+
+
+Create Topics
+To process the ATM messages, let's first create a new topic called bankbranch.
+open another cmd  
+C:\kafka\bin\windows> kafka-topics.bat --create --topic bankbranch --bootstrap-server localhost:9092 --partitions 2
+
+Now let's list all the topics to see if the bankbranch has been created successfully.
+C:\kafka\bin\windows> kafka-topics.bat --bootstrap-server localhost:9092 --list
+
+Describe
+> kafka-topics.bat --bootstrap-server localhost:9092 --describe --topic bankbranch
+
+Create a producer for topic bankbranch
+> kafka-console-producer.bat --bootstrap-server localhost:9092 --topic bankbranch
+> {"atmid": 1, "transid": 100}
+> {"atmid": 1, "transid": 101}
+> {"atmid": 2, "transid": 200}
+> {"atmid": 1, "transid": 102}
+> {"atmid": 2, "transid": 201}
+
+Start a new consumer to subscribe topic bankbranch
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --from-beginning
+
+They are not consumed in the same order as they published. This can be an issue if you want to keep the messages consumed in order, especially for areas like financial transactions.
+
+
+
+
+*** Produce and consume with message keys ***
+using message keys to ensure messages with the same key will be consumed with the same order as they published. In the backend, messages with the same key will be published into the same partition and will always be consumed by the same consumer. As such, the original publication order is kept in the consumer side.
+
+Start a new producer with message key enabled:
+> kafka-console-producer.bat --bootstrap-server localhost:9092 --topic bankbranch --property parse.key=true --property key.separator=:
+> 1:{"atmid": 1, "transid": 102}
+> 1:{"atmid": 1, "transid": 103}
+> 2:{"atmid": 2, "transid": 202}
+> 2:{"atmid": 2, "transid": 203}
+> 1:{"atmid": 1, "transid": 104}
+
+Start a new consumer with arguments to print the keys
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --from-beginning --property print.key=true --property key.separator=:
+
+Now, you should see the messages with the same key are being consumed (e.g., trans102 -> trans103 -> trans104) in the same order as they are published.
+
+
+
+
+
+

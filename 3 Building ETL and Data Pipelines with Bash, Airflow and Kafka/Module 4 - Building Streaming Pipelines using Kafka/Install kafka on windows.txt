@@ -1,0 +1,25 @@
+Step 1 : Download Kafka
+
+download Kafka: https://kafka.apache.org/downloads
+Select Binary downloads
+
+
+Step 2 : Configure Kafka
+Extract to folder eg C:/kafka
+create folder "data" inside kafka C:/kafka/data
+create 2 folders inside data: 
+    kafka >> C:/kafka/data/kafka
+    zookeeper >> C:/kafka/data/zookeeper
+
+open C:/kafka/config/zookeeper.properties >> replace dataDir=C:/kafka/data/zookeeper   # ** make sure using forwarding slashes
+open C:/kafka/config/server.properties >> replace log.dirs=C:/kafka/data/kafka   # ** make sure using forwarding slashes **
+
+
+Step 3 : Starting Zookeeper and Kafka
+To start Zookeeper: open cmd
+> C:\kafka
+> .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+
+To start Kafka: open another cmd
+> C:\kafka
+> .\bin\windows\kafka-server-start.bat .\config\server.properties

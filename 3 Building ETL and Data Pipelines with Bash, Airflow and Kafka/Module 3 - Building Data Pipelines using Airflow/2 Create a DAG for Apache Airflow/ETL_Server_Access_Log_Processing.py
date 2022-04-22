@@ -23,7 +23,7 @@ default_args = {
 
 # define the DAG
 dag = DAG(
-    'ETL-Server-Access-Log',
+    'etl-log-processsing-dag',
     default_args=default_args,
     description='This is my ETL for server access log',
     schedule_interval=timedelta(days=1),
@@ -35,21 +35,21 @@ dag = DAG(
 
 download = BashOperator(
     task_id='download',
-    bash_command='wget -P /home/mustafa/airflow "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Apache%20Airflow/Build%20a%20DAG%20using%20Airflow/web-server-access-log.txt"',
+    bash_command='wget -P /home/mustafa/etl-file "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Apache%20Airflow/Build%20a%20DAG%20using%20Airflow/web-server-access-log.txt"',
     dag=dag,
 )
 
 # define the task 'extract'
 extract = BashOperator(
     task_id='extract',
-    bash_command='cut -f1,4 -d"#" web-server-access-log.txt > extracted.txt',
+    bash_command='cut -f1,4 -d"#" /home/mustafa/etl-file/web-server-access-log.txt > /home/mustafa/etl-file/extracted.txt',
     dag=dag,
 )
 
 # define the task 'transform'
 transform = BashOperator(
     task_id = 'transform',
-    bash_command='tr "[a-z]" "[A-Z]" < extracted.txt > capitalized.txt',
+    bash_command='tr "[a-z]" "[A-Z]" < /home/mustafa/etl-file/extracted.txt > /home/mustafa/etl-file/capitalized.txt',
     dag=dag,
 )
 
@@ -57,7 +57,7 @@ transform = BashOperator(
 
 load = BashOperator(
     task_id='load',
-    bash_command='zip log.zip capitalized.txt' ,
+    bash_command='zip -r /home/mustafa/etl-file/log.zip /home/mustafa/etl-file/capitalized.txt' ,
     dag=dag,
 )
 
