@@ -54,5 +54,46 @@ Now, you should see the messages with the same key are being consumed (e.g., tra
 
 
 
+*** Consumer Group *** 
+In addition, we normally group related consumers together as a consumer group. For example, we may want to create a consumer for each ATM in the bank and manage all ATM related consumers together in a group.
+
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --group atm-app
+
+Stop the consumer
+Processed a total of 0 messages
+
+> kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group atm-app
+
+Switch to the previous producer terminal, and publish two more messages:
+OR > kafka-console-producer.bat --bootstrap-server localhost:9092 --topic bankbranch --property parse.key=true --property key.separator=:
+> 1:{"atmid": 1, "transid": 105}
+> 2:{"atmid": 2, "transid": 204}
+
+> kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group atm-app
+
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --group atm-app
+
+> kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group atm-app
+
+
+
+*** Reset offset ***
+We can reset index use the --reset-offsets argument
+
+> kafka-consumer-groups.bat --bootstrap-server localhost:9092  --topic bankbranch --group atm-app --reset-offsets --to-earliest --execute
+
+
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --group atm-app
+
+and you should see all 12 messages are consumed and all offsets should reach to the partition ends again.
+
+let's reset the offset so that we only consume the last two messages.
+Shift the offset to left by 2 using --reset-offsets --shift-by -2:
+
+> kafka-consumer-groups.bat --bootstrap-server localhost:9092  --topic bankbranch --group atm-app --reset-offsets --shift-by -2 --execute
+
+we can see we consumed 4 messages, 2 for each partition:
+> kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic bankbranch --group atm-app
+
 
 
