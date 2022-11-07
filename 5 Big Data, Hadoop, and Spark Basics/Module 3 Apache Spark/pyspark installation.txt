@@ -1,0 +1,4 @@
+install Pyspark
+
+https://lifewithdata.com/2022/01/16/how-to-install-pyspark-correctly-on-windows-step-by-step-guide/
+

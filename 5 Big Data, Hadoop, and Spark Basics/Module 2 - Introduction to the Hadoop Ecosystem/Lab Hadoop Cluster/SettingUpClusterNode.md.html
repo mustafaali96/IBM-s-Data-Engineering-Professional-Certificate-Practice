@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!-- saved from url=(0127)https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-BD0225EN-SkillsNetwork/labs/SettingUpClusterNode.md.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./SettingUpClusterNode.md_files/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./SettingUpClusterNode.md_files/default.min.css">
+  <style type="text/css">/* this file is used for labs on cognitiveclass.ai that were written in markdown */
+
+/* applies to images, i.e. "![]()" in markdown */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* add padding and margins */
+body {
+  padding: 10px;
+  margin: 10px;
+}
+
+/* applies to tables, i.e. "|--|--|" in markdown */
+table td,
+table th {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+/* applies to using quotes, i.e. ">" in markdown */
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 1em 10px 0.1em 10px;
+  quotes: '\201C''\201D''\2018''\2019';
+}
+
+/* the headers need some spacing */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  padding-top: 20px;
+}
+
+/* Add padding between nested list item */
+ul > li > ul {
+  padding-bottom: 1rem;
+}
+
+.code-badge-language {
+  display: none;
+}
+.code-badge-copy-icon {
+  background: url('data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhciIgZGF0YS1pY29uPSJjb3B5IiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY29weSBmYS13LTE0IiByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0OCA1MTIiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTQzMy45NDEgNjUuOTQxbC01MS44ODItNTEuODgyQTQ4IDQ4IDAgMCAwIDM0OC4xMTggMEgxNzZjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2NDhINDhjLTI2LjUxIDAtNDggMjEuNDktNDggNDh2MzIwYzAgMjYuNTEgMjEuNDkgNDggNDggNDhoMjI0YzI2LjUxIDAgNDgtMjEuNDkgNDgtNDh2LTQ4aDgwYzI2LjUxIDAgNDgtMjEuNDkgNDgtNDhWOTkuODgyYTQ4IDQ4IDAgMCAwLTE0LjA1OS0zMy45NDF6TTI2NiA0NjRINTRhNiA2IDAgMCAxLTYtNlYxNTBhNiA2IDAgMCAxIDYtNmg3NHYyMjRjMCAyNi41MSAyMS40OSA0OCA0OCA0OGg5NnY0MmE2IDYgMCAwIDEtNiA2em0xMjgtOTZIMTgyYTYgNiAwIDAgMS02LTZWNTRhNiA2IDAgMCAxIDYtNmgxMDZ2ODhjMCAxMy4yNTUgMTAuNzQ1IDI0IDI0IDI0aDg4djIwMmE2IDYgMCAwIDEtNiA2em02LTI1NmgtNjRWNDhoOS42MzJjMS41OTEgMCAzLjExNy42MzIgNC4yNDMgMS43NTdsNDguMzY4IDQ4LjM2OGE2IDYgMCAwIDEgMS43NTcgNC4yNDNWMTEyeiI+PC9wYXRoPjwvc3ZnPg==');
+  background-size: 100% 100%;
+}
+
+.code-badge {
+  bottom: 0 !important;
+  top: unset !important;
+  background: unset !important;
+}
+
+.code-badge > .code-badge-check-icon {
+  background: green;
+}
+.code-badge-check-icon {
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0 7px;
+  background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGFyaWEtaGlkZGVuPSJ0cnVlIiBmb2N1c2FibGU9ImZhbHNlIiBkYXRhLXByZWZpeD0iZmFzIiBkYXRhLWljb249ImNoZWNrIiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY2hlY2sgZmEtdy0xNiIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9IiYjMTA7ICAgIGNvbG9yOiAjMmFmZjMyOyYjMTA7Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNzMuODk4IDQzOS40MDRsLTE2Ni40LTE2Ni40Yy05Ljk5Ny05Ljk5Ny05Ljk5Ny0yNi4yMDYgMC0zNi4yMDRsMzYuMjAzLTM2LjIwNGM5Ljk5Ny05Ljk5OCAyNi4yMDctOS45OTggMzYuMjA0IDBMMTkyIDMxMi42OSA0MzIuMDk1IDcyLjU5NmM5Ljk5Ny05Ljk5NyAyNi4yMDctOS45OTcgMzYuMjA0IDBsMzYuMjAzIDM2LjIwNGM5Ljk5NyA5Ljk5NyA5Ljk5NyAyNi4yMDYgMCAzNi4yMDRsLTI5NC40IDI5NC40MDFjLTkuOTk4IDkuOTk3LTI2LjIwNyA5Ljk5Ny0zNi4yMDQtLjAwMXoiLz48L3N2Zz4=');
+  background-size: 100% 100%;
+}
+</style></head>
+  <body>
+    <h1>Hands-on lab on Hadoop Cluster (20 mins)</h1>
+    <img src="./SettingUpClusterNode.md_files/IDSNlogo.png" width="200/">
+    <h4>What is a Hadoop Cluster?</h4>
+    <p>A Hadoop cluster is a collection of computers, known as nodes, that are networked together to perform parallel computations on big data sets. The Name node is the master node of the Hadoop Distributed File System (HDFS). It maintains the meta data of the files in the RAM for quick access. An actual Hadoop Cluster setup involves extensives resources which are not within the scope of this lab. In this lab, you will use dockerized hadoop to create a Hadoop Cluster which will have:</p>
+    <ol>
+      <li>Namenode</li>
+      <li>Datanode</li>
+      <li>Node Manager</li>
+      <li>Resource manager</li>
+      <li>Hadoop history server</li>
+    </ol>
+    <h2>Objectives</h2>
+    <ul>
+      <li>Run a dockerized Cluster Hadoop instance</li>
+      <li>Create a file in the HDFS and view it on the GUI</li>
+    </ul>
+    <h1></h1>
+    <h3>Set up Cluster Nodes Dockerized Hadoop</h3>
+    <ol>
+      <li>Start a new terminal</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/New_terminal.png">
+    <ol start="2">
+      <li>Clone the repository to your theia environment.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">git clone https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/ibm-developer-skills-network/</span>ooxwv-docker_hadoop.git
+</code></pre>
+    <p></p>
+    <ol start="3">
+      <li>Navigate to the docker-hadoop directory to build it.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">bash</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-bash"><span class="hljs-built_in"><span class="hljs-built_in">cd</span></span> ooxwv-docker_hadoop
+</code></pre>
+    <p></p>
+    <ol start="4">
+      <li>Compose the docker application.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">ebnf</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-ebnf"><span class="hljs-attribute">docker-compose up -d</span>
+</code></pre>
+    <p></p>
+    <blockquote>
+      <p><strong>Compose</strong> is a tool for defining and running multi-container Docker applications. It uses the YAML file to configure the serives and enables us to create and start all the services from just one configurtation file.</p>
+    </blockquote>
+    <p>You will see that all the five containers are created and started.</p>
+    <img src="./SettingUpClusterNode.md_files/all_containers.png" width="50%">
+    <ol start="5">
+      <li>Run the namenode as a mounted drive on bash.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">docker exec -it namenode <span class="hljs-regexp">/bin/</span>bash
+</code></pre>
+    <p></p>
+    <ol start="6">
+      <li>You will observe that the prompt changes as shown below.</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/root_prompt.png" style="border: solid 1px white;">
+    <h1>Explore the hadoop environment</h1>
+    <p>As you have learnt in the videos and reading thus far in the course, a Hadoop environment is configured by editing a set of configuration files:</p>
+    <ul>
+      <li>
+        <p><strong>hadoop-env.sh</strong> Serves as a master file to configure YARN, HDFS, MapReduce, and Hadoop-related project settings.</p>
+      </li>
+      <li>
+        <p><strong>core-site.xml</strong> Defines HDFS and Hadoop core properties</p>
+      </li>
+      <li>
+        <p><strong>hdfs-site.xml</strong> Governs the location for storing node metadata, fsimage file and log file.</p>
+      </li>
+      <li>
+        <p><strong>mapred-site-xml</strong> Lists the parameters for MapReduce configuration.</p>
+      </li>
+      <li>
+        <p><strong>yarn-site.xml</strong> Defines settings relevant to YARN. It contains configurations for the Node Manager, Resource Manager, Containers, and Application Master.</p>
+      </li>
+    </ul>
+    <p>For the docker image, these xml files have been configured already. You can see these in the directory <strong>/opt/hadoop-3.2.1/etc/hadoop/</strong> by running</p>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">ls <span class="hljs-regexp">/opt/</span>hadoop-<span class="hljs-number">3.2</span>.<span class="hljs-number">1</span><span class="hljs-regexp">/etc/</span>hadoop/*.xml
+</code></pre>
+    <p></p>
+    <h1></h1>
+    <h3>Create a file in the HDFS</h3>
+    <ol>
+      <li>In the HDFS, create a directory structure named <code>user/root/input</code>.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">hdfs dfs -mkdir -p <span class="hljs-regexp">/user/</span>root/input
+</code></pre>
+    <p></p>
+    <ol start="2">
+      <li>Copy all the hadoop configuration xml files into the input directory.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">hdfs dfs -put <span class="hljs-variable">$HADOOP_HOME</span><span class="hljs-regexp">/etc/</span>hadoop<span class="hljs-regexp">/*.xml /u</span>ser<span class="hljs-regexp">/root/i</span>nput
+</code></pre>
+    <p></p>
+    <ol start="3">
+      <li>Create a <code>data.txt</code> file in the current directory.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">curl https:<span class="hljs-regexp">//</span>raw.githubusercontent.com<span class="hljs-regexp">/ibm-developer-skills-network/</span>ooxwv-docker_hadoop<span class="hljs-regexp">/master/</span>SampleMapReduce.txt --output data.txt 
+</code></pre>
+    <p></p>
+    <ol start="4">
+      <li>Copy the <code>data.txt</code> file into <code>/user/root</code>.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">hdfs dfs -put data.txt <span class="hljs-regexp">/user/</span>root/
+</code></pre>
+    <p></p>
+    <ol start="5">
+      <li>Check if the file has been copied into the HDFS by viewing its content.</li>
+    </ol>
+    <pre class="code-badge-pre"><div class="code-badge">
+        <div class="code-badge-language">awk</div>
+        <div title="Copy to clipboard">
+            <i class="code-badge-copy-icon code-badge-copy-icon"></i>
+        </div>
+     </div><code class="hljs language-awk">hdfs dfs -cat <span class="hljs-regexp">/user/</span>root/data.txt
+</code></pre>
+    <p></p>
+    <h1></h1>
+    <h3>View the HDFS</h3>
+    <ol>
+      <li>From the top menu, choose <strong>Launch Application</strong>.</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/launch_application.png" style="border: solid 1px white;" width="50%">
+    <ol start="2">
+      <li>Enter the port number <code>9870</code> and click on <code>ok</code> to connect.</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/launch_port.png" style="border: solid 1px white;" width="50%">
+    <ol start="3">
+      <li>This will open up the Graphical User Interface (GUI) of the Hadoop node. Click on <code>Utilities</code> <strong>-&gt;</strong> <code>Broswe the file system</code> to browse the files.</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/browse_filesystem.png">
+    <ol start="4">
+      <li>View the files in the directories that you have just created by clicking on <code>user</code> then <code>root</code>.</li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/browse_directory.png">
+    <ol start="5">
+      <li>
+        <p>Notice that the block size is 128 MB though the file size is actually much smaller. This is because the default block size used by HDFS is 128 MB.</p>
+      </li>
+      <li>
+        <p>You can click on the file to check the file into. It gives you information about the file in terms of number of bytes, block id etc.,</p>
+      </li>
+    </ol>
+    <img src="./SettingUpClusterNode.md_files/file_info.png" width="50%">
+    <h1></h1>
+    <h3>Congratulations! You have:</h3>
+    <ul>
+      <li>Deployed Hadoop using Docker</li>
+      <li>Created data in HDFS and viewed it on the GUI</li>
+    </ul>
+    <p><a class="twitter-share-button" href="https://twitter.com/intent/tweet?utm_medium=Exinfluencer&amp;utm_source=Exinfluencer&amp;utm_content=000026UJ&amp;utm_term=10006555&amp;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMBD0225ENSkillsNetwork25716109-2022-01-01&amp;text=I+just+learned+how+to+deploy+%23Hadoop+using+%23Docker%2C+load+data+into+%23HDFS%2C+as+part+of+the+introductory+Big+Data+with+Hadoop+and+Spark+course+by+IBM."><img src="./SettingUpClusterNode.md_files/logo46x38.png" target="_blank">Tweet and share your achievement!</a></p>
+    <h2>Author(s)</h2>
+    <p>Lavanya T S</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>18-01-2022</td>
+          <td>1.0</td>
+          <td>Lavanya</td>
+          <td>Created lab instructions for Hadoop Cluster</td>
+        </tr>
+      </tbody>
+    </table>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="./SettingUpClusterNode.md_files/inject.43989f87.js.download"></script>
+    <script src="./SettingUpClusterNode.md_files/highlight.min.js.download"></script>
+    <script src="./SettingUpClusterNode.md_files/highlightjs-badge.min.js.download"></script>
+  
+
+<style>
+@media print {
+   .code-badge { display: none; }
+}
+    .code-badge-pre {
+        position: relative;
+    }
+    .code-badge {
+        display: flex;
+        flex-direction: row;
+        white-space: normal;
+        background: transparent;
+        background: #333;
+        color: white;
+        font-size: 0.875em;
+        opacity: 0.5;
+        transition: opacity linear 0.5s;
+        border-radius: 0 0 0 7px;
+        padding: 5px 8px 5px 8px;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .code-badge.active {
+        opacity: 0.8;
+    }
+
+    .code-badge:hover {
+        opacity: .95;
+    }
+
+    .code-badge a,
+    .code-badge a:hover {
+        text-decoration: none;
+    }
+
+    .code-badge-language {
+        margin-right: 10px;
+        font-weight: 600;
+        color: goldenrod;
+    }
+    .code-badge-copy-icon {
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 0 7px;
+        margin-top:2;
+    }
+    .fa.text-success:{ color: limegreen !important }
+</style><div id="CodeBadgeTemplate" style="display:none">
+    <div class="code-badge">
+        <div class="code-badge-language">{{language}}</div>
+        <div title="Copy to clipboard">
+            <i class="{{copyIconClass}} code-badge-copy-icon"></i>
+        </div>
+     </div>
+</div></body></html>
