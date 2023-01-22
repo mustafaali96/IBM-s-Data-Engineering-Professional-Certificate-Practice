@@ -1,13 +1,26 @@
-from kafka.admin import KafkaAdminClient, NewTopic
+from kafka import KafkaProducer
+import json
 
-admin_client = KafkaAdminClient(bootstrap_servers="localhost:9092", client_id='test')
+# # Serialize json messages
+# producer = KafkaProducer(bootstrap_servers="localhost:9092", value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+# for num in range(100):
+#     # producer.send('newtestbankbranch', b"{'atmid':'{num}', 'transid':100}")
+#     producer.send('newtestbankbranch', {'atmid':num, 'transid':100})
+# producer.flush()
 
-producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
+# producer = KafkaProducer(bootstrap_servers="localhost:9092")
+# for _ in range(100):
+#     producer.send('newtestbankbranch', b'testing')
+# producer.flush()
 
 
-producer.send("bankbranch", {'atmid':1, 'transid':100})
+# Compress messages
+producer = KafkaProducer(bootstrap_servers="localhost:9092", compression_type='gzip')
+for i in range(1000):
+    producer.send('newtestbankbranch', b'msg %d' % i)
+producer.flush()
 
-producer.send("bankbranch", {'atmid':2, 'transid':101})
 
 
 # kafka-console-producer.bat --bootstrap-server localhost:9092 --topic testbankbranch
